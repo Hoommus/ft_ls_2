@@ -120,12 +120,17 @@ void		filelist_add(t_file **head, t_file **tail, t_file *to_add)
 	}
 }
 
-void		filelist_print(t_file *head)
+void		filelist_print(t_file *head, t_flags flags)
 {
-
+	if ((flags & FLAG_LONG))
+	{
+		;
+	};
+	else
+		ft_putendl(head->basename);
 }
 
-void		preprocess(char **argv)
+void		preprocess(char **argv, t_flags flags)
 {
 	struct stat	s;
 	int			i;
@@ -149,7 +154,7 @@ void		preprocess(char **argv)
 			filelist_add(&files, NULL, filelist_new(&s, argv[i], NULL));
 		i++;
 	}
-	filelist_print(files);
+	filelist_print(files, flags);
 }
 
 int			main(int argc, char **argv)
