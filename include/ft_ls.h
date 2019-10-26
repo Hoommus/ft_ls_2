@@ -9,6 +9,7 @@
 # define FLAG_TSORT 16
 # define FLAG_NOSORT 32
 # define FLAG_NOTOTAL 256
+# define FLAG_FORCEDIRNAME 512
 
 # include <pwd.h>
 # include <time.h>
@@ -64,10 +65,20 @@ typedef struct			s_file
 
 void		filelist_add(t_file **head, t_file **tail, t_file *to_add);
 t_file		*filelist_new(struct stat *s, char *path, char *basename);
+void		filelist_free_one(t_file *file);
 void		filelist_free(t_file *file);
+t_file		*filelist_sort(t_file *list, t_flags flags);
+int			filelist_length(t_file *list);
 
-void		filelist_print(t_file *head, t_flags flags);
+t_file		*filelist_print(t_file *head, t_flags flags);
 char		*get_fullpath(char *path, char *basename);
 char		*get_permissions(t_file *file);
+
+t_file		*read_directory(char *dirname, DIR *dir, t_flags flags);
+
+
+void		print_error(char *cause);
+
+void		free_array(char **array);
 
 #endif

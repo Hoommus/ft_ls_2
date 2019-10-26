@@ -1,7 +1,7 @@
 
 NAME = ft_ls
 
-FLAGS = -Wall -Wextra -Werror -fsanitize=address
+FLAGS = -Wall -Wextra -Werror -fsanitize=address -g
 
 HEADER = -I include -I ./libft
 SRC_DIR = ./src/
@@ -14,18 +14,22 @@ SRC = main.c \
       permissions.c \
       filelist_print.c \
       fullpath.c \
-      filelist.c
+      filelist.c \
+      errors.c \
+      filelist_sort.c \
+      mem.c \
+      readdir.c
 
 OBJ = $(addprefix $(OBJ_DIR), $(SRC:.c=.o))
 
-all: $(NAME)
+all: $(NAME) include/ft_ls.h
 
 $(NAME): $(OBJ)
 	make -C $(LIB_DIR)
 	cp $(LIB_DIR)/$(LIB_NAME) ./$(LIB_NAME)
 	clang $(FLAGS) -o $(NAME) $(OBJ) $(HEADER) $(LIB_NAME)
 
-$(OBJ_DIR)%.o: $(SRC_DIR)%.c $(OBJ_DIR)
+$(OBJ_DIR)%.o: $(SRC_DIR)%.c $(OBJ_DIR) include/ft_ls.h
 	clang $(FLAGS) $(HEADER) -o $@ -c $<
 
 $(OBJ_DIR):

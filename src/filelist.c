@@ -16,21 +16,36 @@ t_file		*filelist_new(struct stat *s, char *path, char *basename)
 	new->size = s->st_size;
 	new->blocks = s->st_blocks;
 	new->atime = s->st_atimespec;
-	new->btime = (struct timespec){0};
+	new->btime = s->st_birthtimespec;
 	new->ctime = s->st_ctimespec;
 	new->mtime = s->st_mtimespec;
-	new->user = getpwuid(new->uid)->pw_name;
-	new->group = getgrgid(new->gid)->gr_name;
+	new->user =  ft_strdup(getpwuid(new->uid)->pw_name);
+	new->group = ft_strdup(getgrgid(new->gid)->gr_name);
 	get_permissions(new);
 	return (new);
 }
 
-void		filelist_free(t_file *file)
+void		filelist_free_one(t_file *file)
 {
 	free(file->basename);
 	free(file->path);
 	free(file->full_path);
+	free(file->user);
+	free(file->group);
+	ft_bzero(file, sizeof(t_file));
 	free(file);
+}
+
+void		filelist_free(t_file *list)
+{
+	t_file	*tmp;
+
+	while (list)
+	{
+		tmp = list->next;
+		filelist_free_one(list);
+		list = tmp;
+	}
 }
 
 void		filelist_add(t_file **head, t_file **tail, t_file *to_add)
