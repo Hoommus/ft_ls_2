@@ -1,30 +1,5 @@
 #include "ft_ls.h"
 
-int			get_flags(int argc, char **argv, t_flags *f)
-{
-	int	i;
-	int	j;
-
-	i = 0;
-	while (++i < argc && argv[i][j = 0] == '-' && argv[i][1] != '\0')
-		while (argv[i][++j])
-			if (argv[i][j] == 'a')
-				*f |= FLAG_ALL;
-			else if (argv[i][j] == 'l')
-				*f |= FLAG_LONG;
-			else if (argv[i][j] == 'R')
-				*f |= FLAG_RECURSION;
-			else if (argv[i][j] == 'r')
-				*f |= FLAG_REVERSE;
-			else if (argv[i][j] == 't')
-				*f |= FLAG_TSORT;
-			else if (argv[i][j] == 'f')
-				*f |= FLAG_NOSORT;
-			else
-				return (-argv[i][j]);
-	return (i);
-}
-
 void		preprocess(char **argv, t_flags flags)
 {
 	struct stat	s;
@@ -41,7 +16,6 @@ void		preprocess(char **argv, t_flags flags)
 	while (i < size)
 		if ((status = stat(argv[i], &s)) || !S_ISDIR(s.st_mode))
 		{
-			// TODO: add link check
 			if (status < 0)
 				print_error(argv[i]);
 			else
@@ -54,9 +28,7 @@ void		preprocess(char **argv, t_flags flags)
 	filelist_free(filelist_print(filelist_sort(files, flags), flags));
 }
 
-void		recursive_descent(char **argv, t_flags flags);
-
-char	**get_filenames(char *dirname, t_file *list)
+char		**get_filenames(char *dirname, t_file *list)
 {
 	char	**filenames;
 	int		i;
@@ -81,8 +53,7 @@ void		print_dir(char *dirname, t_flags flags)
 	t_file		*files;
 
 	files = NULL;
-	dir = opendir(dirname);
-	if (dir == NULL)
+	if ((dir = opendir(dirname)) == NULL)
 		print_error(dirname);
 	else
 	{
@@ -90,11 +61,7 @@ void		print_dir(char *dirname, t_flags flags)
 		closedir(dir);
 	}
 	if (dir && (flags & FLAG_FORCEDIRNAME))
-	{
-		ft_putchar('\n');
-		ft_putstr(dirname);
-		ft_putstr(":\n");
-	}
+		print_forward_name(dirname);
 	if (files != NULL)
 		filelist_print(files, flags);
 	if ((flags & FLAG_RECURSION))
@@ -110,24 +77,22 @@ void		recursive_descent(char **argv, t_flags flags)
 {
 	static long long	needs_forward_print = 1;
 	struct stat			s;
-	t_file				*file;
-//	int					i;
-//	int					sts;
-//	int					is_lnk;
 
 	needs_forward_print--;
 	if (needs_forward_print < 0 || *(argv + 1) != NULL)
 		flags |= FLAG_FORCEDIRNAME;
 	while (*argv)
 	{
-		if (stat(*argv, &s))
+		stat(*argv, &s);
+		if (lstat(*argv, &s))
 			print_error(*argv);
 		if (S_ISDIR(s.st_mode) || (*argv)[ft_strlen(*argv)] == '/')
 			print_dir(*argv, flags);
-		else
+		else if (S_ISLNK(s.st_mode) && (*argv)[ft_strlen(*argv)] != '/')
 		{
-			file = filelist_new(&s, NULL, *argv);
-			filelist_print(file, flags);
+			flags |= FLAG_NOTOTAL;
+			filelist_free(filelist_print(filelist_new(&s, NULL, *argv), flags));
+			flags &= ~FLAG_NOTOTAL;
 		}
 		argv++;
 	}
@@ -155,6 +120,5 @@ int			main(int argc, char **argv)
 	preprocess(argv, flags);
 	flags &= ~FLAG_NOTOTAL;
 	recursive_descent(argv, flags);
-//	system("leaks ft_ls");
 	return (0);
 }

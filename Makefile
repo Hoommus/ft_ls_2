@@ -1,7 +1,7 @@
 
 NAME = ft_ls
 
-FLAGS = -Wall -Wextra -Werror -fsanitize=address -g
+FLAGS = -Wall -Wextra -Werror -g
 
 HEADER = -I include -I ./libft
 SRC_DIR = ./src/
@@ -13,11 +13,13 @@ LIB_NAME = libft.a
 SRC = main.c \
       permissions.c \
       filelist_print.c \
+      filelist_print_one.c \
       fullpath.c \
       filelist.c \
       errors.c \
       filelist_sort.c \
       mem.c \
+      flags.c \
       readdir.c
 
 OBJ = $(addprefix $(OBJ_DIR), $(SRC:.c=.o))

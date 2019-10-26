@@ -16,13 +16,15 @@ t_file		*filelist_new(struct stat *s, char *path, char *basename)
 	new->size = s->st_size;
 	new->blocks = s->st_blocks;
 	new->atime = s->st_atimespec;
-	new->btime = s->st_birthtimespec;
 	new->ctime = s->st_ctimespec;
 	new->mtime = s->st_mtimespec;
-	new->user =  ft_strdup(getpwuid(new->uid)->pw_name);
+	new->user = ft_strdup(getpwuid(new->uid)->pw_name);
 	new->group = ft_strdup(getgrgid(new->gid)->gr_name);
 	if (S_ISLNK(new->mode))
+	{
+		new->link_dest = ft_memalloc(1025);
 		readlink(new->full_path, new->link_dest, 1024);
+	}
 	get_permissions(new);
 	return (new);
 }
@@ -34,6 +36,7 @@ void		filelist_free_one(t_file *file)
 	free(file->full_path);
 	free(file->user);
 	free(file->group);
+	free(file->link_dest);
 	ft_bzero(file, sizeof(t_file));
 	free(file);
 }
