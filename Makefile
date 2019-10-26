@@ -24,14 +24,15 @@ SRC = main.c \
 
 OBJ = $(addprefix $(OBJ_DIR), $(SRC:.c=.o))
 
-all: $(NAME) include/ft_ls.h
+all: $(NAME)
 
 $(NAME): $(OBJ)
 	make -C $(LIB_DIR)
 	cp $(LIB_DIR)/$(LIB_NAME) ./$(LIB_NAME)
 	clang $(FLAGS) -o $(NAME) $(OBJ) $(HEADER) $(LIB_NAME)
 
-$(OBJ_DIR)%.o: $(SRC_DIR)%.c $(OBJ_DIR) include/ft_ls.h
+$(OBJ_DIR)%.o: $(SRC_DIR)%.c include/ft_ls.h
+	@mkdir -p $(OBJ_DIR)
 	clang $(FLAGS) $(HEADER) -o $@ -c $<
 
 $(OBJ_DIR):
