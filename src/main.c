@@ -6,7 +6,7 @@ int			get_flags(int argc, char **argv, t_flags *f)
 	int	j;
 
 	i = 0;
-	while (++i < argc && argv[i][j = 0] == '-')
+	while (++i < argc && argv[i][j = 0] == '-' && argv[i][1] != '\0')
 		while (argv[i][++j])
 			if (argv[i][j] == 'a')
 				*f |= FLAG_ALL;
@@ -41,6 +41,7 @@ void		preprocess(char **argv, t_flags flags)
 	while (i < size)
 		if ((status = stat(argv[i], &s)) || !S_ISDIR(s.st_mode))
 		{
+			// TODO: add link check
 			if (status < 0)
 				print_error(argv[i]);
 			else
@@ -57,23 +58,20 @@ void		recursive_descent(char **argv, t_flags flags);
 
 char	**get_filenames(char *dirname, t_file *list)
 {
-	char	**array;
-	t_file	*swap;
+	char	**filenames;
 	int		i;
 
-	i = 0;
-	swap = list;
-	while (swap && ++i)
-		swap = swap->next;
-	array = (char **)malloc(sizeof(char *) * (i + 1));
-	array[i] = NULL;
+	i = filelist_length(list);
+	filenames = ft_memalloc(sizeof(char *) * (i + 1));
+	filenames[i] = NULL;
 	i = 0;
 	while (list)
 	{
-		array[i++] = get_fullpath(dirname, list->basename);
+		if (!ft_strequ(list->basename, ".") && !ft_strequ(list->basename, ".."))
+			filenames[i++] = get_fullpath(dirname, list->basename);
 		list = list->next;
 	}
-	return (array);
+	return (filenames);
 }
 
 void		print_dir(char *dirname, t_flags flags)
@@ -112,18 +110,25 @@ void		recursive_descent(char **argv, t_flags flags)
 {
 	static long long	needs_forward_print = 1;
 	struct stat			s;
+	t_file				*file;
 //	int					i;
 //	int					sts;
 //	int					is_lnk;
 
 	needs_forward_print--;
-	if (needs_forward_print < 0)
+	if (needs_forward_print < 0 || *(argv + 1) != NULL)
 		flags |= FLAG_FORCEDIRNAME;
 	while (*argv)
 	{
-		stat(*argv, &s);
-		if (S_ISDIR(s.st_mode))
+		if (stat(*argv, &s))
+			print_error(*argv);
+		if (S_ISDIR(s.st_mode) || (*argv)[ft_strlen(*argv)] == '/')
 			print_dir(*argv, flags);
+		else
+		{
+			file = filelist_new(&s, NULL, *argv);
+			filelist_print(file, flags);
+		}
 		argv++;
 	}
 }
@@ -150,6 +155,6 @@ int			main(int argc, char **argv)
 	preprocess(argv, flags);
 	flags &= ~FLAG_NOTOTAL;
 	recursive_descent(argv, flags);
-	system("leaks ft_ls");
+//	system("leaks ft_ls");
 	return (0);
 }

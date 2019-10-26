@@ -8,7 +8,7 @@ t_file		*filelist_new(struct stat *s, char *path, char *basename)
 	new->basename = ft_strdup(basename);
 	new->path = ft_strdup(path);
 	new->full_path = get_fullpath(path, basename);
-	new->dev_id = s->st_dev;
+	new->dev_id = s->st_rdev;
 	new->mode = s->st_mode;
 	new->uid = s->st_uid;
 	new->gid = s->st_gid;
@@ -21,6 +21,8 @@ t_file		*filelist_new(struct stat *s, char *path, char *basename)
 	new->mtime = s->st_mtimespec;
 	new->user =  ft_strdup(getpwuid(new->uid)->pw_name);
 	new->group = ft_strdup(getgrgid(new->gid)->gr_name);
+	if (S_ISLNK(new->mode))
+		readlink(new->full_path, new->link_dest, 1024);
 	get_permissions(new);
 	return (new);
 }

@@ -42,7 +42,7 @@ typedef struct			s_file
 	char			*basename;
 	char			*path;
 	char			*full_path;
-	char			*link_dest;
+	char			link_dest[1025];
 	char			permissions[13];
 	dev_t			dev_id;
 	mode_t			mode;

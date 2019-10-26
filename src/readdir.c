@@ -23,7 +23,7 @@ t_file	*read_directory(char *dirname, DIR *dir, t_flags flags)
 			}
 		}
 		else
-			print_error(dirname);
+			print_error(full_path);
 		free(full_path);
 	}
 	return (head);
