@@ -1,16 +1,20 @@
 
 NAME = ft_ls
 
-FLAGS = -Wall -Wextra -Werror
+FLAGS = -Wall -Wextra -Werror -fsanitize=address
 
-HEADER = include
+HEADER = -I include -I ./libft
 SRC_DIR = ./src/
 OBJ_DIR = ./obj/
 
-LIB_DIR = ./printf
-LIB_NAME = libftprintf.a
+LIB_DIR = ./libft
+LIB_NAME = libft.a
 
-SRC = main.c
+SRC = main.c \
+      permissions.c \
+      filelist_print.c \
+      fullpath.c \
+      filelist.c
 
 OBJ = $(addprefix $(OBJ_DIR), $(SRC:.c=.o))
 
@@ -19,10 +23,10 @@ all: $(NAME)
 $(NAME): $(OBJ)
 	make -C $(LIB_DIR)
 	cp $(LIB_DIR)/$(LIB_NAME) ./$(LIB_NAME)
-	clang $(FLAGS) -o $(NAME) $(OBJ) -I $(HEADER) $(LIB_NAME)
+	clang $(FLAGS) -o $(NAME) $(OBJ) $(HEADER) $(LIB_NAME)
 
 $(OBJ_DIR)%.o: $(SRC_DIR)%.c $(OBJ_DIR)
-	clang $(FLAGS) -I $(HEADER) -o $@ -c $<
+	clang $(FLAGS) $(HEADER) -o $@ -c $<
 
 $(OBJ_DIR):
 	@mkdir -p $(OBJ_DIR)
